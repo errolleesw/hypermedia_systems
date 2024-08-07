@@ -1,0 +1,74 @@
+<!-- ./templates/index.html -->
+
+{% extends 'layout.html' %} {% block content %}
+
+<form action="/contacts" method="get" class="tool-bar">
+  <label for="search">Search Term</label>
+  <input
+    id="search"
+    type="search"
+    name="q"
+    value="{{ request.args.get('q') or '' }}"
+    hx-get="/contacts"
+    hx-trigger="search, keyup delay:200ms changed"
+    hx-target="body"
+    hx-push-url="true"
+    hx-indicator="#spinner"
+  />
+  <img
+    style="height: 20px"
+    id="spinner"
+    class="htmx-indicator"
+    src="/static/img/spinning-circles.svg"
+  />
+  <input type="submit" value="Search" />
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>First</th>
+      <th>Last</th>
+      <th>Phone</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for contact in contacts %}
+    <tr>
+      <td>{{ contact.first }}</td>
+      <td>{{ contact.last }}</td>
+      <td>{{ contact.phone }}</td>
+      <td>{{ contact.email }}</td>
+      <td>
+        <a href="/contacts/{{ contact.id }}/edit">Edit</a>
+        <a href="/contacts/{{ contact.id }}">View</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p><a href="/contacts/new">Add Contact</a></p>
+
+<div id="main">
+  <button
+    hx-get="/contactshtmx"
+    hx-target="#main"
+    hx-swap="beforeend"
+    hx-trigger="click, keyup[ctrlKey && key == 'l'] from:body"
+  >
+    Get The Contacts
+  </button>
+</div>
+
+<div>
+  <span style="float: right">
+    {% if page > 1 %}
+    <a href="/contacts?page={{ page - 1 }}">Previous</a> {% endif %} {% if
+    contacts|length == 10 %} <a href="/contacts?page={{ page + 1 }}">Next</a> {%
+    endif %}
+  </span>
+</div>
+
+{% endblock %}
